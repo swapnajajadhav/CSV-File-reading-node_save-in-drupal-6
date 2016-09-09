@@ -1,0 +1,71 @@
+<?php
+function insert_menu()
+{
+	$items = array();
+    $items['insert/insert_menu'] = array(
+    'title' => 'insert menu',
+    'description' => 'Inserts Csv file',
+    'page callback' => 'insert_answers',
+    'page arguments' => array(),
+    'access arguments' => array(),
+  );
+   return $items;
+}
+
+function insert_answers()
+{
+ global $user;
+ global $base_url;
+ $path = $base_url.'/sites/all/modules/insert/5.csv';//drupal_get_path('csv','5.csv');
+
+ $data = array();
+ $file_data = array();
+ $file = fopen($path,"r");
+ //$data = fgetcsv($file);
+$row = 1;
+$k=0;
+if (($handle = fopen($path, "r")) !== FALSE) {
+  while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+    $num = count($data);
+    $row++;
+    for ($c=0; $c < $num; $c++) {
+        $file_data[$k] = $data[$c];
+		$k++;
+    }
+  }
+  fclose($handle);
+}
+//to remove null values
+$file_data = array_filter($file_data);
+
+//to re-index array
+$file_data = array_values($file_data);
+
+ 
+ //$file_data[0] is a common node for all answers
+ for ($i = 1; $i< (count($file_data)); $i++) {
+ $node = new stdClass();
+
+	//Main Node Fields
+	$node->name = "Answers";
+	$node->title = ""; //already set by module
+	
+	$node->type = 'answers'; //This can be any node type
+	$node->created = time();
+	$node->changed = $node->created;
+	$node->promote = 0; // Display on front page ? 1 : 0
+	$node->sticky = 0;  // Display top of page ? 1 : 0
+	$node->format = 2;  // 1:Filtered HTML, 2: Full HTML
+	$node->status = 1;   // Published ? 1 : 0
+	$node->language = 'en';
+	$node->uid = $user->uid; 
+	
+	$node->	field_answer_text[0]['value'] = $file_data[$i];
+	$node->field_question_id[0]['value'] = $file_data[0];
+	
+	
+  node_save($node);
+  $node = NULL;
+}
+
+}
