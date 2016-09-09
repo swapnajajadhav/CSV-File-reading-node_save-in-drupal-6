@@ -1,0 +1,7 @@
+;$Id$
+name = 'Insert'
+description = 'insert data from a csv file'
+package = 'Drupal 6 Development'
+core = '6.x'
+files[] = 'insert.module'
+php = '5.2'
